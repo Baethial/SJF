@@ -207,14 +207,14 @@ gap: 10px;
   height: 100%;
 }
 
-.waiting-line {
-  top: 10px; /* Adjust vertical position as needed */
-  background-color: #3498DB; /* Color of the waiting time line */
-}
-
 .base-line {
   top: 10px; /* Adjust vertical position as needed */
   background-color: #85c9f7; /* Color of the waiting time line */
+}
+
+.waiting-line {
+  top: 10px; /* Adjust vertical position as needed */
+  background-color: #3498DB; /* Color of the waiting time line */
 }
 
 .burst-line {
