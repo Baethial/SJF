@@ -101,6 +101,7 @@ class CircularSinglyLinkedList {
                 this.deleteAtStart();
             }
         }
+        csl.insertFromBlocked();
     }
     insertAtEnd(data, burst) {
         const newNode = new ClientNode(data, burst);
@@ -393,12 +394,8 @@ function updateAnimation() {
 async function processTransactionAndUpdateView() {
     //insertClientsWithProbability(csl);
     if (csl.isEmpty()) {
-        if (blockedList.length === 0) {
-            console.log("Queue is empty");
-            return;
-        }
-        insertClientsFromBlockedList(csl);
-        updateAnimation();
+        console.log("Queue is empty");
+        return;
     }
     await csl.processTransactions();
     updateAnimation();
@@ -406,10 +403,8 @@ async function processTransactionAndUpdateView() {
     displayBlockedTable();
     populateGanttChart();
     // Recursively call the function after 2 seconds if the queue is not empty
-    if (!csl.isEmpty() || blockedList.length > 0) {
+    if (!csl.isEmpty()) {
         processTransactionAndUpdateView();
-    } else {
-        console.log("Processing ended. BlockedList is empty.");
     }
 }
 // Function to insert clients into the queue with a 33% probability
@@ -426,43 +421,16 @@ function insertClientsWithProbability(csl) {
         return false;
     }
 }
-// Function to periodically check the BlockedList and move elements back to the main queue after a random period of time
-function checkAndMoveFromBlockedList() {
-    setInterval(() => {
-        if (blockedList.length > 0) {
-            // Move elements back to the main queue
-            csl.insertFromBlocked();
-            // Update the animation display
-            updateAnimation();
-        }
-    }, 3000); // Adjust the interval duration as needed
-}
-// Function to insert clients into the queue from the blocked list
-function insertClientsFromBlockedList(csl) {
-    // Add a client back to the CSLL
-    if (blockedList.length > 0) {
-        csl.insertFromBlocked();
-        return true;
-    } else {
-        console.log("No client added in this step.");
-        return false;
-    }
-}
 // Function to execute insertClientsWithProbability in parallel to processTransactionsWithDelay
 async function executeParallelOperations() {
     // Start the interval to increment the counter every 500 milliseconds
     const intervalID = setInterval(incrementCounter, 500);
-    // Execute insertClientsWithProbability and insertClientsFromBlockedList in parallel
+    // Execute insertClientsWithProbability and insertFromBlocked in parallel
     const insertionPromise = new Promise(resolve => {
         setInterval(() => {
-            // globalArrivalTime++;
-            if (insertClientsWithProbability(csl)){
-                updateAnimation();
-            }
-            if (insertClientsFromBlockedList(csl)) {
-                updateAnimation();
-            }
-        }, 1000);
+            insertClientsWithProbability(csl);
+            updateAnimation();
+        }, 500);
         resolve();
     });
     // Execute processTransactionsWithDelay
@@ -677,9 +645,7 @@ displayTable();
 //Call the displayTable function to initially populate the table
 displayBlockedTable();
 //Populate Base Line
-populateBaseline()
-// Start periodically checking and moving elements from the BlockedList
-checkAndMoveFromBlockedList(); 
+populateBaseline();
 // Execution
 executeParallelOperations();
 //***End of Example Execution***
