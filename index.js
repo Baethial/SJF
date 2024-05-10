@@ -175,6 +175,51 @@ class CircularSinglyLinkedList {
         firstNode.next = this.head;
         bloquedList.push(firstNode);
     }
+
+    
+    moveCurrentToEnd(current) {
+        if (this.isEmpty()) {
+            console.log("List is empty");
+            return;
+        }
+    
+        let currentNode = current;
+        if (currentNode.next === this.head) {
+            console.log("Only one node in the list. No need to move.");
+            return;
+        }
+    
+        let prevNode = this.head;
+        while (prevNode.next !== currentNode) {
+            prevNode = prevNode.next;
+        }
+    
+        let nextNode = currentNode.next;
+        prevNode.next = nextNode;
+    
+        let tailNode = this.tail;
+        tailNode.next = currentNode;
+        currentNode.next = this.head;
+        this.tail = currentNode;
+    }
+
+    organizeNodes() {
+        let isSorted = false; 
+        while (!isSorted) {
+            isSorted = true; 
+            let current = this.head.next;
+            let nextClient = current.next;
+            while (nextClient !== this.head) {
+                if (nextClient.burst < current.burst) {
+                    this.moveCurrentToEnd(current);
+                    isSorted = false; 
+                    break;
+                }
+                current = nextClient;
+                nextClient = current.next;
+            }
+        }
+    }
     // Method to display the queue in console - (debugging tool)
     display() {
         if (this.isEmpty()) {
@@ -407,6 +452,7 @@ async function processTransactionAndUpdateView() {
         return;
     }
     await csl.processTransactions();
+    csl.organizeNodes();
     updateAnimation();
     displayTable();
     populateGanttChart();
@@ -578,9 +624,11 @@ function populateGanttChart() {
         task.classList.add('task');
         task.style.top = `${index * 30}px`; // Adjust vertical position for each client row
 
+        const baseLine = createLine(0, client.arrivalTime, 'base-line');
         const waitingLine = createLine(client.arrivalTime, client.startTime, 'waiting-line');
         const burstLine = createLine(client.startTime, client.finalTime, 'burst-line');
 
+        task.appendChild(baseLine);
         task.appendChild(waitingLine);
         task.appendChild(burstLine);
 
