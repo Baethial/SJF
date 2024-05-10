@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+    
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>Bank Queue Animation</title>
+</head>
+
+<body>
+    <header class="topLine">
+        <div class="topDiv">Shinsekai</div>
+    </header>
+
+    <div class="information">
+        <div class = "label">
+            <p>Actual client:</p>
+          </div>  
+          <div class = "info_box">
+            <p id = "actualClient"></p>
+        </div>  
+
+        <div class = "label">
+            <p>Number of transactions:</p>
+          </div>  
+          <div class = "info_box">
+            <p id = "numTransactions"></p>
+        </div>  
+
+        <div class = "label">
+          <p class = "label_p">Actions executed by the cashier:</p>
+        </div>  
+        <div class = "info_box">
+          <p id = "queueState"></p>
+        </div>  
+
+        <div class="label">
+          <p>New clients:</p>
+        </div>  
+        <div class = "info_box">
+          <p id="newClientsAdd"></script></p>
+        </div>  
+
+        <div class="label">
+          <p>Max number of transactions:</p>
+        </div>  
+        <div class = "info_box">
+          <p id = "maxTransactions"></p>
+        </div>  
+    </div>
+
+    <div id="animation-container">
+        <div id="cashier-box" class="box cashier-box">Gol D. Roger</div>
+    </div>
+
+    <div class="table-container">
+      <table class="table" id="table-container"></table>
+    </div>
+    
+    <div class="gantt-container">
+      <div class="baseline"></div>
+      <div class="gantt"></div>
+  </div>     
+
+    <script src="index.js"></script>
+</body>
+</html>
