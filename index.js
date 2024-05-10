@@ -311,61 +311,7 @@ function getRandomColor() {
 function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
-// Function to generate a client name
-// function generateClientName() {
-//     const names = [
-//         // Characters from Kaido's crew
-//         "Kaido",
-//         "King",
-//         "Queen",
-//         "Jack",
-//         "Kaido's All-Stars",
-       
-//         // Characters from Luffy's crew
-//         "Monkey D. Luffy",
-//         "Roronoa Zoro",
-//         "Nami",
-//         "Usopp",
-//         "Sanji",
-//         "Tony Tony Chopper",
-//         "Nico Robin",
-//         "Franky",
-//         "Brook",
-//         "Jinbe",
-       
-//         // Characters from Big Mom's crew
-//         "Charlotte Linlin (Big Mom)",
-//         "Charlotte Katakuri",
-//         "Charlotte Smoothie",
-//         "Charlotte Cracker",
-//         "Charlotte Perospero",
-//         "Charlotte Compote",
-//         "Charlotte Daifuku",
-//         "Charlotte Oven",
-//         "Charlotte Opera",
-//         "Charlotte Mont-d'Or",
-//         "Charlotte Galette",
-//         "Charlotte BrÃ»lÃ©e",
-//         "Charlotte Pudding",
-       
-//         // Characters from Shanks' crew
-//         "Shanks",
-//         "Benn Beckman",
-//         "Lucky Roo",
-//         "Yasopp",
-       
-//         // Characters from Blackbeard's (Teach's) crew
-//         "Marshall D. Teach (Blackbeard)",
-//         "Jesus Burgess",
-//         "Shiliew",
-//         "Van Augur",
-//         "Laffitte",
-//         "Doc Q",
-//         "Stronger"
-//     ];
-//     const randomIndex = Math.floor(Math.random() * names.length);
-//     return names[randomIndex];
-// }
+
 let letterCounter = 0; 
 let auxiliarCounter = 0;
 function generateClientName() {
