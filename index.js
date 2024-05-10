@@ -86,16 +86,16 @@ class CircularSinglyLinkedList {
             // Generate a random number between 1 and 100
             const probability = getRandomInt(1, 100);
             //Introduced a probability that the process will get blocked
-            if (probability <= 33) {
+            if (probability <= 60) {
                 maxBurst = getRandomInt(1, burst-1);
             } 
 
             //This is the simulation of the blocking of the process
-            if (burst > maxBurst) {
+            if (burst > maxBurst && burst!=0) {
                 await client.removeTransactions(maxBurst);
                 this.moveFirstToBlocked();
-                maxBurst = 1000;
-                this.head.maxBurst = 1000;
+                //maxBurst = 1000;
+                //this.head.maxBurst = 1000;
             } else {
                 await client.removeTransactions(burst);
                 this.deleteAtStart();
@@ -124,6 +124,7 @@ class CircularSinglyLinkedList {
             return;
         }
         var oldNode = blockedList[0];
+        var counter = 0;
         if (this.isEmpty()) {
             this.tail = oldNode;
             this.head.next = oldNode;
@@ -132,12 +133,13 @@ class CircularSinglyLinkedList {
             let current = this.head.next;
             while (current.next !== this.head) { //Before the tail
                 current = current.next;
+                counter ++;
             }
             this.tail = oldNode;
             current.next = oldNode;
             oldNode.next = this.head;
         }
-        blockedList.splice();
+        blockedList.splice(counter, 1);
     }
 
     deleteAtStart() {
@@ -179,6 +181,7 @@ class CircularSinglyLinkedList {
             return;
         }
         let firstNode = this.head.next;
+
         if (firstNode.next === this.head) {
             // There's only one node in the list
             console.log("Only one node in the list.");
