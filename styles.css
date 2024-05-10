@@ -207,7 +207,7 @@ gap: 10px;
   height: 100%;
 }
 
-.base-line {
+.background-line {
   top: 10px; /* Adjust vertical position as needed */
   background-color: #85c9f7; /* Color of the waiting time line */
 }
@@ -221,4 +221,3 @@ gap: 10px;
   top: 10px; /* Adjust vertical position as needed */
   background-color: #116299; /* Color of the burst time line */
 }
-

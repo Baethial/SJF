@@ -26,7 +26,7 @@ class ClientNode extends Node {
         if(num <= 0) return;
         //It will take 1000 miliseconds for each process
         for (let i = 0; i < num && this.burst > 0; i++) {
-            await waitForTime(500);
+            await waitForTime(500);      
             this.burst--;
         }
     }
@@ -54,13 +54,13 @@ class CircularSinglyLinkedList {
     isEmpty() {
         return this.tail === null;
     }
+    // Method to process the first client transactions
     async processTransactions() {
         let client = this.head.next;
         if (client == this.head) {
             console.log("Queue is empty!");
         } else {
             //Update the new information of the node - To populate the table
-            
             client.startTime = currentFinalTime;
             client.finalTime = client.startTime + client.burst;
             currentFinalTime = client.finalTime;
@@ -70,24 +70,33 @@ class CircularSinglyLinkedList {
             let burst = client.burst;
             let maxBurst = this.head.maxBurst;
 
-            //This part does not work for this algorithm
+            //Save information of the node
+            const clientInfo = {
+                data: client.data,
+                arrivalTime: client.arrivalTime,
+                burst: client.burst,
+                startTime: client.startTime,
+                finalTime: client.finalTime,
+                returnTime: client.returnTime,
+                waitTime: client.waitTime,
+            }
+            // Either removed or blocked
+            dispatchedClientsInfo.push(clientInfo);
+
+            // Generate a random number between 1 and 100
+            const probability = getRandomInt(1, 100);
+            //Introduced a probability that the process will get blocked
+            if (probability <= 33) {
+                maxBurst = getRandomInt(1, burst-1);
+            } 
+
+            //This is the simulation of the blocking of the process
             if (burst > maxBurst) {
                 await client.removeTransactions(maxBurst);
-                burst -= maxBurst;
-                this.moveFirstToEnd();
+                this.moveFirstToBlocked();
+                maxBurst = 1000;
+                this.head.maxBurst = 1000;
             } else {
-                //Save information of the deleted node
-                const clientInfo = {
-                    data: client.data,
-                    arrivalTime: client.arrivalTime,
-                    burst: client.burst,
-                    startTime: client.startTime,
-                    finalTime: client.finalTime,
-                    returnTime: client.returnTime,
-                    waitTime: client.waitTime,
-                }
-                console.log(clientInfo);
-                dispatchedClientsInfo.push(clientInfo);
                 await client.removeTransactions(burst);
                 this.deleteAtStart();
             }
@@ -109,21 +118,28 @@ class CircularSinglyLinkedList {
             newNode.next = this.head;
         }
     }
-    insertFromBloqued(client) {
+
+    insertFromBlocked() {
+        if (blockedList.length === 0) {
+            return;
+        }
+        var oldNode = blockedList[0];
         if (this.isEmpty()) {
-            this.tail = client;
-            this.head.next = client;
-            client.next = this.head;
+            this.tail = oldNode;
+            this.head.next = oldNode;
+            oldNode.next = this.head;
         } else {
             let current = this.head.next;
             while (current.next !== this.head) { //Before the tail
                 current = current.next;
             }
-            this.tail = client;
-            current.next = client;
-            client.next = this.head;
+            this.tail = oldNode;
+            current.next = oldNode;
+            oldNode.next = this.head;
         }
+        blockedList.splice();
     }
+
     deleteAtStart() {
         if (this.isEmpty()) {
             console.log("List is empty");
@@ -165,18 +181,19 @@ class CircularSinglyLinkedList {
         let firstNode = this.head.next;
         if (firstNode.next === this.head) {
             // There's only one node in the list
-            console.log("Only one node in the list. No need to move.");
-            return;
+            console.log("Only one node in the list.");
+            blockedList.push(firstNode);
+            this.insertFromBlocked();
+        } else {
+            //Remove from first position
+            let nextNode = firstNode.next;
+            this.head.next = nextNode;
+            //Insert into blocked list
+            firstNode.next = null;
+            blockedList.push(firstNode);
         }
-        //Remove from first position
-        let nextNode = firstNode.next;
-        this.head.next = nextNode;
-        //Insert into blocked list
-        firstNode.next = this.head;
-        bloquedList.push(firstNode);
     }
 
-    
     moveCurrentToEnd(current) {
         if (this.isEmpty()) {
             console.log("List is empty");
@@ -220,38 +237,11 @@ class CircularSinglyLinkedList {
             }
         }
     }
-    // Method to display the queue in console - (debugging tool)
-    display() {
-        if (this.isEmpty()) {
-            console.log("List is empty");
-            return;
-        }
-        let current = this.head.next;
-        do {
-            if (current instanceof ClientNode) {
-                console.log(current.data + ": " + current.burst);
-                current = current.next;
-            }
-        } while (current !== this.head);
-    }
-    // Not used
-    nodeCount() {
-        let nodesNumber = 0;
-        let current = this.head;
-        if (this.isEmpty()) {
-            console.log("List is empty");
-            return;
-        }
-        do {
-            nodesNumber= nodesNumber + 1;
-            current = current.next;
-        } while (current !== this.head);
-        return nodesNumber;
-    }
+
 }
 
 //Blocked List
-var bloquedList = [];
+var blockedList = [];
 
 //***End of the implementation of the Circular Singly Linked List***
 
@@ -448,17 +438,24 @@ function updateAnimation() {
 async function processTransactionAndUpdateView() {
     //insertClientsWithProbability(csl);
     if (csl.isEmpty()) {
-        console.log("Queue is empty");
-        return;
+        if (blockedList.length === 0) {
+            console.log("Queue is empty");
+            return;
+        }
+        insertClientsFromBlockedList(csl);
+        updateAnimation();
     }
     await csl.processTransactions();
     csl.organizeNodes();
     updateAnimation();
     displayTable();
+    displayBlockedTable();
     populateGanttChart();
     // Recursively call the function after 2 seconds if the queue is not empty
-    if (!csl.isEmpty()) {
+    if (!csl.isEmpty() || blockedList.length > 0) {
         processTransactionAndUpdateView();
+    } else {
+        console.log("Processing ended. BlockedList is empty.");
     }
 }
 // Function to insert clients into the queue with a 33% probability
@@ -472,17 +469,25 @@ function insertClientsWithProbability(csl) {
         csl.insertAtEnd(clientName, transactions);
         return true;
     } else {
-        console.log("No client added in this step.");
         return false;
     }
+}
+// Function to periodically check the BlockedList and move elements back to the main queue after a random period of time
+function checkAndMoveFromBlockedList() {
+    setInterval(() => {
+        if (blockedList.length > 0) {
+            // Move elements back to the main queue
+            csl.insertFromBlocked();
+            // Update the animation display
+            updateAnimation();
+        }
+    }, 3000); // Adjust the interval duration as needed
 }
 // Function to insert clients into the queue from the blocked list
 function insertClientsFromBlockedList(csl) {
     // Add a client back to the CSLL
-    if (bloquedList.length > 0) {
-        const random = getRandomInt(0, bloquedList.length());
-        var client = bloquedList[random];
-        csl.insertFromBloqued(client);
+    if (blockedList.length > 0) {
+        csl.insertFromBlocked();
         return true;
     } else {
         console.log("No client added in this step.");
@@ -493,11 +498,14 @@ function insertClientsFromBlockedList(csl) {
 async function executeParallelOperations() {
     // Start the interval to increment the counter every 500 milliseconds
     const intervalID = setInterval(incrementCounter, 500);
-    // Execute insertClientsWithProbability in parallel
+    // Execute insertClientsWithProbability and insertClientsFromBlockedList in parallel
     const insertionPromise = new Promise(resolve => {
         setInterval(() => {
             // globalArrivalTime++;
             if (insertClientsWithProbability(csl)){
+                updateAnimation();
+            }
+            if (insertClientsFromBlockedList(csl)) {
                 updateAnimation();
             }
         }, 1000);
@@ -616,6 +624,49 @@ function displayTable() {
     tableContainer.appendChild(table);
 }
 
+// Function to generate and display the table for the blocked list
+function displayBlockedTable() {
+    const tableContainer = document.getElementById("blocked-table-container");
+
+    // Clear existing content
+    tableContainer.innerHTML = "";
+
+    // Create table element
+    const table = document.createElement("table");
+    table.classList.add("table");
+
+    // Create table header row
+    const headerRow = document.createElement("tr");
+    const headers = ["Process Name", "Arrival Time", "Remaining Burst"];
+    headers.forEach(headerText => {
+        const headerCell = document.createElement("th");
+        headerCell.textContent = headerText;
+        headerCell.classList.add("table-label");
+        headerRow.appendChild(headerCell);
+    });
+    table.appendChild(headerRow);
+
+    // Create table body rows
+    blockedList.forEach(client => {
+        const row = document.createElement("tr");
+        const rowData = [
+            client.data,
+            client.arrivalTime,
+            client.burst
+        ];
+        rowData.forEach(data => {
+            const cell = document.createElement("td");
+            cell.textContent = data;
+            cell.classList.add("table-process");
+            row.appendChild(cell);
+        });
+        table.appendChild(row);
+    });
+
+    // Append table to container
+    tableContainer.appendChild(table);
+}
+
 // Function to populate the Gantt chart with tasks for each client
 function populateGanttChart() {
     const gantt = document.querySelector('.gantt');
@@ -624,11 +675,9 @@ function populateGanttChart() {
         task.classList.add('task');
         task.style.top = `${index * 30}px`; // Adjust vertical position for each client row
 
-        const baseLine = createLine(0, client.arrivalTime, 'base-line');
         const waitingLine = createLine(client.arrivalTime, client.startTime, 'waiting-line');
         const burstLine = createLine(client.startTime, client.finalTime, 'burst-line');
 
-        task.appendChild(baseLine);
         task.appendChild(waitingLine);
         task.appendChild(burstLine);
 
@@ -671,9 +720,12 @@ createRandomClientList(csl);
 updateAnimation();
 //Call the displayTable function to initially populate the table
 displayTable();
+//Call the displayTable function to initially populate the table
+displayBlockedTable();
 //Populate Base Line
-populateBaseline() 
+populateBaseline()
+// Start periodically checking and moving elements from the BlockedList
+checkAndMoveFromBlockedList(); 
 // Execution
-
 executeParallelOperations();
 //***End of Example Execution***
