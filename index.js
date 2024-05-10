@@ -86,16 +86,28 @@ class CircularSinglyLinkedList {
             // Generate a random number between 1 and 100
             const probability = getRandomInt(1, 100);
             //Introduced a probability that the process will get blocked
+<<<<<<< HEAD
             if (probability <= 33) {
+=======
+            if (probability <= 60) {
+>>>>>>> main
                 maxBurst = getRandomInt(1, burst-1);
             } 
 
             //This is the simulation of the blocking of the process
+<<<<<<< HEAD
             if (burst > maxBurst) {
                 await client.removeTransactions(maxBurst);
                 this.moveFirstToBlocked();
                 maxBurst = 1000;
                 this.head.maxBurst = 1000;
+=======
+            if (burst > maxBurst && burst!=0) {
+                await client.removeTransactions(maxBurst);
+                this.moveFirstToBlocked();
+                //maxBurst = 1000;
+                //this.head.maxBurst = 1000;
+>>>>>>> main
             } else {
                 await client.removeTransactions(burst);
                 this.deleteAtStart();
@@ -125,6 +137,10 @@ class CircularSinglyLinkedList {
             return;
         }
         var oldNode = blockedList[0];
+<<<<<<< HEAD
+=======
+        var counter = 0;
+>>>>>>> main
         if (this.isEmpty()) {
             this.tail = oldNode;
             this.head.next = oldNode;
@@ -133,12 +149,17 @@ class CircularSinglyLinkedList {
             let current = this.head.next;
             while (current.next !== this.head) { //Before the tail
                 current = current.next;
+                counter ++;
             }
             this.tail = oldNode;
             current.next = oldNode;
             oldNode.next = this.head;
         }
+<<<<<<< HEAD
         blockedList.splice();
+=======
+        blockedList.splice(counter, 1);
+>>>>>>> main
     }
 
     deleteAtStart() {
@@ -180,6 +201,7 @@ class CircularSinglyLinkedList {
             return;
         }
         let firstNode = this.head.next;
+
         if (firstNode.next === this.head) {
             // There's only one node in the list
             console.log("Only one node in the list.");
@@ -192,8 +214,57 @@ class CircularSinglyLinkedList {
             //Insert into blocked list
             firstNode.next = null;
             blockedList.push(firstNode);
+<<<<<<< HEAD
+        }
+=======
         }
     }
+
+    moveCurrentToEnd(current) {
+        if (this.isEmpty()) {
+            console.log("List is empty");
+            return;
+        }
+    
+        let currentNode = current;
+        if (currentNode.next === this.head) {
+            console.log("Only one node in the list. No need to move.");
+            return;
+        }
+    
+        let prevNode = this.head;
+        while (prevNode.next !== currentNode) {
+            prevNode = prevNode.next;
+        }
+    
+        let nextNode = currentNode.next;
+        prevNode.next = nextNode;
+    
+        let tailNode = this.tail;
+        tailNode.next = currentNode;
+        currentNode.next = this.head;
+        this.tail = currentNode;
+    }
+
+    organizeNodes() {
+        let isSorted = false; 
+        while (!isSorted) {
+            isSorted = true; 
+            let current = this.head.next;
+            let nextClient = current.next;
+            while (nextClient !== this.head) {
+                if (nextClient.burst < current.burst) {
+                    this.moveCurrentToEnd(current);
+                    isSorted = false; 
+                    break;
+                }
+                current = nextClient;
+                nextClient = current.next;
+            }
+        }
+>>>>>>> main
+    }
+
 }
 
 //Blocked List
@@ -264,61 +335,7 @@ function getRandomColor() {
 function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
-// Function to generate a client name
-// function generateClientName() {
-//     const names = [
-//         // Characters from Kaido's crew
-//         "Kaido",
-//         "King",
-//         "Queen",
-//         "Jack",
-//         "Kaido's All-Stars",
-       
-//         // Characters from Luffy's crew
-//         "Monkey D. Luffy",
-//         "Roronoa Zoro",
-//         "Nami",
-//         "Usopp",
-//         "Sanji",
-//         "Tony Tony Chopper",
-//         "Nico Robin",
-//         "Franky",
-//         "Brook",
-//         "Jinbe",
-       
-//         // Characters from Big Mom's crew
-//         "Charlotte Linlin (Big Mom)",
-//         "Charlotte Katakuri",
-//         "Charlotte Smoothie",
-//         "Charlotte Cracker",
-//         "Charlotte Perospero",
-//         "Charlotte Compote",
-//         "Charlotte Daifuku",
-//         "Charlotte Oven",
-//         "Charlotte Opera",
-//         "Charlotte Mont-d'Or",
-//         "Charlotte Galette",
-//         "Charlotte BrÃ»lÃ©e",
-//         "Charlotte Pudding",
-       
-//         // Characters from Shanks' crew
-//         "Shanks",
-//         "Benn Beckman",
-//         "Lucky Roo",
-//         "Yasopp",
-       
-//         // Characters from Blackbeard's (Teach's) crew
-//         "Marshall D. Teach (Blackbeard)",
-//         "Jesus Burgess",
-//         "Shiliew",
-//         "Van Augur",
-//         "Laffitte",
-//         "Doc Q",
-//         "Stronger"
-//     ];
-//     const randomIndex = Math.floor(Math.random() * names.length);
-//     return names[randomIndex];
-// }
+
 let letterCounter = 0; 
 let auxiliarCounter = 0;
 function generateClientName() {
@@ -394,17 +411,24 @@ function updateAnimation() {
 async function processTransactionAndUpdateView() {
     //insertClientsWithProbability(csl);
     if (csl.isEmpty()) {
-        console.log("Queue is empty");
-        return;
+        if (blockedList.length === 0) {
+            console.log("Queue is empty");
+            return;
+        }
+        insertClientsFromBlockedList(csl);
+        updateAnimation();
     }
     await csl.processTransactions();
+    csl.organizeNodes();
     updateAnimation();
     displayTable();
     displayBlockedTable();
     populateGanttChart();
     // Recursively call the function after 2 seconds if the queue is not empty
-    if (!csl.isEmpty()) {
+    if (!csl.isEmpty() || blockedList.length > 0) {
         processTransactionAndUpdateView();
+    } else {
+        console.log("Processing ended. BlockedList is empty.");
     }
 }
 // Function to insert clients into the queue with a 33% probability
@@ -418,6 +442,31 @@ function insertClientsWithProbability(csl) {
         csl.insertAtEnd(clientName, transactions);
         return true;
     } else {
+<<<<<<< HEAD
+=======
+        return false;
+    }
+}
+// Function to periodically check the BlockedList and move elements back to the main queue after a random period of time
+function checkAndMoveFromBlockedList() {
+    setInterval(() => {
+        if (blockedList.length > 0) {
+            // Move elements back to the main queue
+            csl.insertFromBlocked();
+            // Update the animation display
+            updateAnimation();
+        }
+    }, 3000); // Adjust the interval duration as needed
+}
+// Function to insert clients into the queue from the blocked list
+function insertClientsFromBlockedList(csl) {
+    // Add a client back to the CSLL
+    if (blockedList.length > 0) {
+        csl.insertFromBlocked();
+        return true;
+    } else {
+        console.log("No client added in this step.");
+>>>>>>> main
         return false;
     }
 }
@@ -425,12 +474,26 @@ function insertClientsWithProbability(csl) {
 async function executeParallelOperations() {
     // Start the interval to increment the counter every 500 milliseconds
     const intervalID = setInterval(incrementCounter, 500);
+<<<<<<< HEAD
     // Execute insertClientsWithProbability and insertFromBlocked in parallel
     const insertionPromise = new Promise(resolve => {
         setInterval(() => {
             insertClientsWithProbability(csl);
             updateAnimation();
         }, 500);
+=======
+    // Execute insertClientsWithProbability and insertClientsFromBlockedList in parallel
+    const insertionPromise = new Promise(resolve => {
+        setInterval(() => {
+            // globalArrivalTime++;
+            if (insertClientsWithProbability(csl)){
+                updateAnimation();
+            }
+            if (insertClientsFromBlockedList(csl)) {
+                updateAnimation();
+            }
+        }, 1000);
+>>>>>>> main
         resolve();
     });
     // Execute processTransactionsWithDelay
@@ -645,7 +708,13 @@ displayTable();
 //Call the displayTable function to initially populate the table
 displayBlockedTable();
 //Populate Base Line
+<<<<<<< HEAD
 populateBaseline();
+=======
+populateBaseline()
+// Start periodically checking and moving elements from the BlockedList
+checkAndMoveFromBlockedList(); 
+>>>>>>> main
 // Execution
 executeParallelOperations();
 //***End of Example Execution***
