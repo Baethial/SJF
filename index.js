@@ -56,6 +56,10 @@ class CircularSinglyLinkedList {
         return this.tail === null;
     }
     async processTransactions() {
+
+        //Organizze nodes before processing
+        this.organizeNodes();
+
         let client = this.head.next;
         if (client == this.head) {
             console.log("Queue is empty!");
@@ -221,6 +225,50 @@ class CircularSinglyLinkedList {
             blockedList.push(firstNode);
         }
         
+    }
+    // Used by the organization method
+    moveCurrentToEnd(current) {
+        if (this.isEmpty()) {
+            console.log("List is empty");
+            return;
+        }
+    
+        let currentNode = current;
+        if (currentNode.next === this.head) {
+            console.log("Only one node in the list. No need to move.");
+            return;
+        }
+    
+        let prevNode = this.head;
+        while (prevNode.next !== currentNode) {
+            prevNode = prevNode.next;
+        }
+    
+        let nextNode = currentNode.next;
+        prevNode.next = nextNode;
+    
+        let tailNode = this.tail;
+        tailNode.next = currentNode;
+        currentNode.next = this.head;
+        this.tail = currentNode;
+    }
+    // Method to organize the nodes by burst length
+    organizeNodes() {
+        let isSorted = false; 
+        while (!isSorted) {
+            isSorted = true; 
+            let current = this.head.next;
+            let nextClient = current.next;
+            while (nextClient !== this.head) {
+                if (nextClient.burst < current.burst) {
+                    this.moveCurrentToEnd(current);
+                    isSorted = false; 
+                    break;
+                }
+                current = nextClient;
+                nextClient = current.next;
+            }
+        }
     }
 }
 //***End of the implementation of the Circular Singly Linked List***
@@ -597,6 +645,10 @@ function populateGanttChart() {
         // Create a container for the Gantt chart lines
         const ganttContainer = document.createElement('div');
         ganttContainer.classList.add('gantt-container');
+
+        //Create rail line
+        const railLine = createLine(0, client.arrivalTime, 'rail-line');
+        ganttContainer.appendChild(railLine);
 
         // Create the waiting line
         const waitingLine = createLine(client.arrivalTime, client.startTime, 'waiting-line');

@@ -204,7 +204,15 @@ gap: 10px;
 
 .line {
   position: absolute;
-  height: 100%;
+  height: 10%;
+}
+
+.rail-line {
+  top: 10px; /* Adjust vertical position as needed */
+  background-color: #caf0f8; /* Color of the waiting time line */
+  border-top: 1px dotted #5a189a; /* Adjust color and width as needed */
+  border-bottom: 1px dotted #5a189a; /* Adjust color and width as needed */
+  height: 9%;
 }
 
 .waiting-line {
@@ -252,7 +260,12 @@ gap: 10px;
 
 .line {
   top: 65px;
-  height: 10%;
   position: block;
 }
 
+.subtitle {
+  display: none;
+  margin-left: 40%;
+  font-family: "Lora", sans-serif;
+  color: #5a189a;
+}
