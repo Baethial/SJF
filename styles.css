@@ -177,11 +177,11 @@ gap: 10px;
 
 .baseline {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
+  width: 97%;
   height: 20px;
   border-top: 2px solid #000; /* Color of the baseline */
+  display: inline-block;
+  margin-left: 20px;
 }
 
 .time-marker {
@@ -204,20 +204,68 @@ gap: 10px;
 
 .line {
   position: absolute;
-  height: 100%;
+  height: 10%;
 }
 
-.background-line {
+.rail-line {
   top: 10px; /* Adjust vertical position as needed */
-  background-color: #85c9f7; /* Color of the waiting time line */
+  background-color: #caf0f8; /* Color of the waiting time line */
+  border-top: 1px dotted #5a189a; /* Adjust color and width as needed */
+  border-bottom: 1px dotted #5a189a; /* Adjust color and width as needed */
+  height: 9%;
 }
 
 .waiting-line {
   top: 10px; /* Adjust vertical position as needed */
-  background-color: #3498DB; /* Color of the waiting time line */
+  background-color: #2196f3; /* Color of the waiting time line */
 }
 
 .burst-line {
   top: 10px; /* Adjust vertical position as needed */
-  background-color: #116299; /* Color of the burst time line */
+  background-color: #5a189a; /* Color of the burst time line */
+}
+
+.blocked-table-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 100px;
+}
+
+/**************************************************************************/
+
+.gantt {
+  display: contents;
+  flex-direction: column;
+}
+
+.task {
+  display: flex;
+  align-items: center;
+  height: 30px;
+}
+
+.process-name {
+  width: 12px; /* Adjust width as needed */
+  padding: 0 10px; /* Adjust padding as needed */
+  background-color: #80ffdb; /* Adjust background color as needed */
+  border: 1px solid #6930c3; /* Add border between process name and Gantt chart */
+
+}
+
+.gantt-container {
+  flex-grow: 1;
+  display: flex;
+}
+
+.line {
+  top: 65px;
+  position: block;
+}
+
+.subtitle {
+  display: none;
+  margin-left: 40%;
+  font-family: "Lora", sans-serif;
+  color: #5a189a;
 }
